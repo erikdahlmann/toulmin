@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Das Toulmin-Schema · Philosophie Q1</title>
+<style>
+  :root{
+    --bg:#f4f1ea;
+    --surface:#ffffff;
+    --ink:#22201c;
+    --muted:#6b665d;
+    --line:#e3ddd0;
+    --accent:#3a5a78;
+    --accent-soft:#e8eef4;
+
+    /* Farben der Toulmin-Elemente */
+    --c-behauptung:#c0392b;
+    --c-daten:#2f6fb0;
+    --c-schlussregel:#2e8b57;
+    --c-stuetzung:#7e57c2;
+    --c-modal:#c9821a;
+    --c-ausnahme:#3f7e7a;
+
+    --ok:#2e8b57;
+    --bad:#c0392b;
+    --radius:14px;
+    --shadow:0 1px 3px rgba(0,0,0,.06),0 8px 24px rgba(0,0,0,.05);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    font-family:"Iowan Old Style","Palatino Linotype",Georgia,serif;
+    background:var(--bg);
+    color:var(--ink);
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{line-height:1.25;font-weight:600}
+  h2{font-size:1.7rem;margin:0 0 .2em}
+  h3{font-size:1.2rem;margin:1.4em 0 .4em}
+  p{margin:.6em 0}
+  a{color:var(--accent)}
+  .wrap{max-width:880px;margin:0 auto;padding:0 22px}
+
+  /* Navigation */
+  nav{
+    position:sticky;top:0;z-index:50;
+    background:rgba(244,241,234,.92);
+    backdrop-filter:saturate(140%) blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  nav .wrap{display:flex;flex-wrap:wrap;align-items:center;gap:4px;padding-top:10px;padding-bottom:10px}
+  nav .brand{font-weight:700;margin-right:auto;font-size:.98rem;letter-spacing:.02em}
+  nav a{
+    font-family:system-ui,sans-serif;font-size:.82rem;text-decoration:none;
+    color:var(--muted);padding:6px 11px;border-radius:999px;transition:.15s;
+  }
+  nav a:hover{background:var(--accent-soft);color:var(--accent)}
+
+  /* Hero */
+  header.hero{padding:54px 0 34px;text-align:center}
+  header.hero .kicker{font-family:system-ui,sans-serif;text-transform:uppercase;letter-spacing:.18em;font-size:.72rem;color:var(--muted)}
+  header.hero h1{font-size:2.6rem;margin:.25em 0 .15em}
+  header.hero p.lead{font-size:1.15rem;color:var(--muted);max-width:620px;margin:.4em auto 0}
+
+  section{padding:30px 0}
+  .card{
+    background:var(--surface);border:1px solid var(--line);
+    border-radius:var(--radius);padding:24px 26px;box-shadow:var(--shadow);margin:18px 0;
+  }
+  .section-tag{
+    display:inline-block;font-family:system-ui,sans-serif;font-size:.72rem;font-weight:700;
+    text-transform:uppercase;letter-spacing:.12em;padding:4px 11px;border-radius:999px;
+    background:var(--accent-soft);color:var(--accent);margin-bottom:14px;
+  }
+  .hint{font-family:system-ui,sans-serif;font-size:.9rem;color:var(--muted);background:#faf8f3;
+    border-left:3px solid var(--line);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0}
+
+  /* Element-Karten */
+  .elements{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px;margin-top:18px}
+  .el{border:1px solid var(--line);border-radius:12px;padding:15px 16px;background:var(--surface);border-top:4px solid var(--bar)}
+  .el .name{font-weight:700;font-size:1.05rem;display:flex;align-items:baseline;gap:8px}
+  .el .en{font-family:system-ui,sans-serif;font-size:.74rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+  .el .def{font-size:.95rem;margin:.4em 0}
+  .el .ex{font-family:system-ui,sans-serif;font-size:.85rem;color:var(--muted);font-style:italic}
+  .el.b{--bar:var(--c-behauptung)} .el.d{--bar:var(--c-daten)} .el.s{--bar:var(--c-schlussregel)}
+  .el.st{--bar:var(--c-stuetzung)} .el.m{--bar:var(--c-modal)} .el.a{--bar:var(--c-ausnahme)}
+
+  /* Farbige Tokens im Fließtext */
+  .tok{padding:1px 6px;border-radius:6px;font-weight:600;color:#fff;font-size:.97em;white-space:normal}
+  .tok.b{background:var(--c-behauptung)} .tok.d{background:var(--c-daten)} .tok.s{background:var(--c-schlussregel)}
+  .tok.st{background:var(--c-stuetzung)} .tok.m{background:var(--c-modal)} .tok.a{background:var(--c-ausnahme)}
+
+  .legend{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+  .chip{font-family:system-ui,sans-serif;font-size:.8rem;font-weight:600;color:#fff;padding:5px 12px;border-radius:999px;cursor:pointer;border:0;opacity:.55;transition:.15s}
+  .chip:hover,.chip.on{opacity:1;transform:translateY(-1px)}
+  .chip.b{background:var(--c-behauptung)} .chip.d{background:var(--c-daten)} .chip.s{background:var(--c-schlussregel)}
+  .chip.st{background:var(--c-stuetzung)} .chip.m{background:var(--c-modal)} .chip.a{background:var(--c-ausnahme)}
+  .example-box{font-size:1.12rem;line-height:2.1;background:#faf8f3;border-radius:12px;padding:20px 22px;border:1px solid var(--line)}
+  .example-box .tok{transition:.2s;outline:3px solid transparent}
+  .example-box.focus .tok{opacity:.28}
+  .example-box.focus .tok.active{opacity:1;outline-color:rgba(0,0,0,.15)}
+
+  /* Aufgaben */
+  .task{counter-increment:none}
+  .task-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .task-num{font-family:system-ui,sans-serif;font-weight:800;font-size:.8rem;color:#fff;background:var(--accent);
+    width:30px;height:30px;border-radius:50%;display:grid;place-items:center;flex:none}
+  .level{font-family:system-ui,sans-serif;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+    padding:3px 9px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+  .seg-row{display:flex;gap:12px;align-items:flex-start;padding:11px 0;border-bottom:1px dashed var(--line);flex-wrap:wrap}
+  .seg-row:last-child{border-bottom:0}
+  .seg-text{flex:1 1 320px;font-size:1.05rem}
+  .seg-pick{flex:0 0 auto;display:flex;align-items:center;gap:8px;font-family:system-ui,sans-serif}
+  select{font-family:system-ui,sans-serif;font-size:.92rem;padding:7px 10px;border-radius:9px;border:1.5px solid var(--line);
+    background:#fff;color:var(--ink);min-width:170px;cursor:pointer}
+  select:focus{outline:2px solid var(--accent)}
+  .mark{font-size:1.2rem;width:1.4em;text-align:center;flex:none}
+  .seg-row.correct{background:#eef8f1;border-radius:8px}
+  .seg-row.incorrect{background:#fbeeec;border-radius:8px}
+  .seg-row.correct select{border-color:var(--ok)}
+  .seg-row.incorrect select{border-color:var(--bad)}
+
+  .btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+  button.act{font-family:system-ui,sans-serif;font-size:.9rem;font-weight:600;padding:9px 18px;border-radius:10px;
+    border:1.5px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer;transition:.15s}
+  button.act:hover{filter:brightness(1.08)}
+  button.ghost{background:#fff;color:var(--accent)}
+  .feedback{margin-top:14px;font-family:system-ui,sans-serif;font-size:.95rem;padding:11px 15px;border-radius:10px;display:none}
+  .feedback.show{display:block}
+  .feedback.good{background:#eef8f1;color:#1f6e43;border:1px solid #b9e0c8}
+  .feedback.mid{background:#fff6e9;color:#8a5a12;border:1px solid #f0d9b0}
+
+  textarea{width:100%;font-family:system-ui,sans-serif;font-size:.98rem;line-height:1.55;padding:12px 14px;
+    border-radius:10px;border:1.5px solid var(--line);background:#fff;color:var(--ink);resize:vertical;min-height:78px}
+  textarea:focus{outline:2px solid var(--accent)}
+  .field-label{font-family:system-ui,sans-serif;font-weight:700;font-size:.9rem;margin:14px 0 5px;display:flex;align-items:center;gap:7px}
+  .dot{width:11px;height:11px;border-radius:3px;flex:none}
+  .solution{display:none;margin-top:14px;border-left:3px solid var(--accent);padding:6px 0 6px 16px}
+  .solution.show{display:block}
+  .solution h4{font-family:system-ui,sans-serif;font-size:.85rem;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin:0 0 6px}
+
+  /* Diagramm & Bild-Slots */
+  .diagram{width:100%;height:auto;display:block;margin:8px 0 2px}
+  .diagram text{font-family:system-ui,sans-serif}
+  figure.shot{margin:18px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#faf8f3}
+  figure.shot img{width:100%;height:auto;display:block}
+  figure.shot .ph{aspect-ratio:16/7;display:grid;place-items:center;color:var(--muted);
+    font-family:system-ui,sans-serif;font-size:.85rem;text-align:center;padding:24px;border-bottom:1px dashed var(--line)}
+  figure.shot figcaption{font-family:system-ui,sans-serif;font-size:.82rem;color:var(--muted);padding:9px 14px}
+
+  footer{padding:40px 0;text-align:center;color:var(--muted);font-family:system-ui,sans-serif;font-size:.85rem}
+  .progress-wrap{position:fixed;left:0;top:0;height:3px;width:100%;background:transparent;z-index:60}
+  #progress{height:100%;width:0;background:var(--accent);transition:width .1s}
+  @media(max-width:540px){header.hero h1{font-size:2rem}.seg-pick{width:100%}select{flex:1}}
+</style>
+</head>
+<body>
+<div class="progress-wrap"><div id="progress"></div></div>
+
+<nav>
+  <div class="wrap">
+    <span class="brand">⚖︎ Toulmin-Schema</span>
+    <a href="#uebersicht">Sachverhalt</a>
+    <a href="#elemente">Elemente</a>
+    <a href="#reproduktion">Identifizieren</a>
+    <a href="#produktion">Entwickeln</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">Philosophie · Einführungsphase (EF)</div>
+    <h1>Das Toulmin-Schema</h1>
+    <p class="lead">Wie ist ein gutes Argument gebaut? Erschließe dir das Modell von Stephen Toulmin, übe das Erkennen seiner Bausteine und entwickle eigene, tragfähige Argumente.</p>
+  </div>
+</header>
+
+<!-- ============ 1 · SACHVERHALT ============ -->
+<section id="uebersicht">
+  <div class="wrap">
+    <span class="section-tag">1 · Sachverhalt erschließen</span>
+    <div class="card">
+      <h2>Worum geht es?</h2>
+      <p>Im Alltag, in Debatten und in philosophischen Texten begegnen uns ständig <strong>Argumente</strong>. Doch nicht jede Meinungsäußerung ist schon ein Argument. Der britische Philosoph <strong>Stephen Toulmin</strong> (1922–2009) hat in seinem Werk <em>„The Uses of Argument“</em> (1958) ein Modell entwickelt, mit dem sich die <strong>innere Struktur</strong> eines Arguments sichtbar machen lässt.</p>
+      <p>Toulmin unterscheidet drei <strong>Grundbausteine</strong>, die in jedem vollständigen Argument stecken, sowie drei <strong>erweiternde Elemente</strong>, mit denen man ein Argument präziser macht.</p>
+      <div class="hint">💡 Merke: Eine <strong>Behauptung</strong> allein ist noch kein Argument. Erst wenn ein <strong>Grund (Daten)</strong> sie stützt und eine <strong>Schlussregel</strong> erklärt, <em>warum</em> dieser Grund zählt, wird daraus ein nachvollziehbares Argument.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Die Elemente ============ -->
+<section id="elemente">
+  <div class="wrap">
+    <span class="section-tag">Die sechs Elemente</span>
+    <div class="card">
+      <h2>Die drei Grundbausteine</h2>
+      <div class="elements">
+        <div class="el b">
+          <div class="name">Behauptung <span class="en">Claim</span></div>
+          <div class="def">Die These bzw. Konklusion — die Aussage, von der wir überzeugen wollen.</div>
+          <div class="ex">„Tom sollte heute früh ins Bett gehen.“</div>
+        </div>
+        <div class="el d">
+          <div class="name">Daten <span class="en">Data / Grund</span></div>
+          <div class="def">Die Tatsache oder Information, auf die sich die Behauptung stützt.</div>
+          <div class="ex">„Tom schreibt morgen eine wichtige Klausur.“</div>
+        </div>
+        <div class="el s">
+          <div class="name">Schlussregel <span class="en">Warrant / Garant</span></div>
+          <div class="def">Die allgemeine Brücke, die erklärt, <em>warum</em> die Daten die Behauptung stützen.</div>
+          <div class="ex">„Wer ausgeschlafen ist, kann sich besser konzentrieren.“</div>
+        </div>
+      </div>
+
+      <h3>Die drei erweiternden Elemente</h3>
+      <div class="elements">
+        <div class="el st">
+          <div class="name">Stützung <span class="en">Backing</span></div>
+          <div class="def">Eine Rechtfertigung, die die Schlussregel selbst absichert (Werte, Normen, Studien, Gesetze).</div>
+          <div class="ex">„Schlafmangel beeinträchtigt nachweislich Gedächtnis und Aufmerksamkeit.“</div>
+        </div>
+        <div class="el m">
+          <div class="name">Modaloperator <span class="en">Qualifier</span></div>
+          <div class="def">Ein Wort, das angibt, <em>wie sicher</em> die Behauptung gilt (z. B. „wahrscheinlich“, „sicher“, „vermutlich“).</div>
+          <div class="ex">„Tom sollte <em>wahrscheinlich</em> früh ins Bett gehen.“</div>
+        </div>
+        <div class="el a">
+          <div class="name">Ausnahmebedingung <span class="en">Rebuttal</span></div>
+          <div class="def">Ein Umstand, unter dem die Behauptung <em>nicht</em> gilt — oft eingeleitet mit „es sei denn“.</div>
+          <div class="ex">„… es sei denn, er ist ohnehin bestens vorbereitet.“</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Das Schema im Überblick</h2>
+      <p>So greifen die Bausteine ineinander. Die <strong>Daten</strong> führen über eine Brücke — die <strong>Schlussregel</strong> — zur <strong>Behauptung</strong>. Die übrigen Elemente machen das Argument genauer:</p>
+      <svg class="diagram" viewBox="0 0 780 430" role="img" aria-label="Strukturdiagramm des Toulmin-Schemas">
+        <defs>
+          <marker id="ah" markerWidth="10" markerHeight="10" refX="6.5" refY="3" orient="auto">
+            <path d="M0,0 L6.5,3 L0,6 Z" fill="#6b665d"/>
+          </marker>
+        </defs>
+        <!-- Verbindungslinien -->
+        <line x1="230" y1="79" x2="544" y2="79" stroke="#6b665d" stroke-width="2" marker-end="url(#ah)"/>
+        <text x="475" y="70" font-size="13" fill="#6b665d" font-style="italic">also</text>
+        <line x1="390" y1="195" x2="390" y2="84" stroke="#6b665d" stroke-width="2" marker-end="url(#ah)"/>
+        <text x="398" y="150" font-size="13" fill="#6b665d" font-style="italic">da</text>
+        <line x1="390" y1="330" x2="390" y2="277" stroke="#6b665d" stroke-width="2" marker-end="url(#ah)"/>
+        <text x="398" y="308" font-size="13" fill="#6b665d" font-style="italic">weil</text>
+        <line x1="655" y1="195" x2="655" y2="123" stroke="var(--c-ausnahme)" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#ah)"/>
+        <text x="663" y="165" font-size="12.5" fill="var(--c-ausnahme)" font-style="italic">es sei denn</text>
+
+        <!-- Modaloperator -->
+        <rect x="548" y="6" width="184" height="28" rx="14" fill="var(--c-modal)"/>
+        <text x="640" y="24" font-size="13" fill="#fff" font-weight="600" text-anchor="middle">wahrscheinlich (Modaloperator)</text>
+
+        <!-- Daten -->
+        <rect x="20" y="40" width="210" height="80" rx="12" fill="#fff" stroke="var(--c-daten)" stroke-width="2.5"/>
+        <text x="34" y="63" font-size="11" fill="var(--c-daten)" font-weight="700" letter-spacing="1">DATEN / GRUND</text>
+        <text x="34" y="86" font-size="14.5" fill="var(--ink)">„Tom schreibt morgen</text>
+        <text x="34" y="105" font-size="14.5" fill="var(--ink)">eine wichtige Klausur.“</text>
+
+        <!-- Behauptung -->
+        <rect x="544" y="40" width="216" height="80" rx="12" fill="#fff" stroke="var(--c-behauptung)" stroke-width="2.5"/>
+        <text x="558" y="63" font-size="11" fill="var(--c-behauptung)" font-weight="700" letter-spacing="1">BEHAUPTUNG</text>
+        <text x="558" y="86" font-size="14.5" fill="var(--ink)">„Tom sollte heute Abend</text>
+        <text x="558" y="105" font-size="14.5" fill="var(--ink)">früh ins Bett gehen.“</text>
+
+        <!-- Schlussregel -->
+        <rect x="285" y="195" width="210" height="80" rx="12" fill="#fff" stroke="var(--c-schlussregel)" stroke-width="2.5"/>
+        <text x="299" y="218" font-size="11" fill="var(--c-schlussregel)" font-weight="700" letter-spacing="1">SCHLUSSREGEL</text>
+        <text x="299" y="241" font-size="14.5" fill="var(--ink)">„Wer ausgeschlafen ist,</text>
+        <text x="299" y="260" font-size="14.5" fill="var(--ink)">konzentriert sich besser.“</text>
+
+        <!-- Stützung -->
+        <rect x="285" y="330" width="210" height="80" rx="12" fill="#fff" stroke="var(--c-stuetzung)" stroke-width="2.5"/>
+        <text x="299" y="353" font-size="11" fill="var(--c-stuetzung)" font-weight="700" letter-spacing="1">STÜTZUNG</text>
+        <text x="299" y="376" font-size="14.5" fill="var(--ink)">„Schlafmangel mindert</text>
+        <text x="299" y="395" font-size="14.5" fill="var(--ink)">nachweislich die Leistung.“</text>
+
+        <!-- Ausnahme -->
+        <rect x="550" y="195" width="210" height="80" rx="12" fill="#fff" stroke="var(--c-ausnahme)" stroke-width="2.5"/>
+        <text x="564" y="218" font-size="11" fill="var(--c-ausnahme)" font-weight="700" letter-spacing="1">AUSNAHMEBEDINGUNG</text>
+        <text x="564" y="241" font-size="14.5" fill="var(--ink)">„… es sei denn, er ist</text>
+        <text x="564" y="260" font-size="14.5" fill="var(--ink)">längst gut vorbereitet.“</text>
+      </svg>
+      <div class="hint">📊 Diese Grafik ist eine echte Vektorzeichnung im Code — sie bleibt auf Beamer, Tablet und Ausdruck immer scharf und übernimmt automatisch die Farben der sechs Elemente.</div>
+    </div>
+
+    <div class="card">
+      <h2>Ein Argument unter der Lupe</h2>
+      <p>Klicke unten auf einen Baustein, um ihn im Beispielargument hervorzuheben:</p>
+      <div class="legend" id="legend">
+        <button class="chip b on" data-k="b">Behauptung</button>
+        <button class="chip d on" data-k="d">Daten</button>
+        <button class="chip s on" data-k="s">Schlussregel</button>
+        <button class="chip st on" data-k="st">Stützung</button>
+        <button class="chip m on" data-k="m">Modaloperator</button>
+        <button class="chip a on" data-k="a">Ausnahmebedingung</button>
+      </div>
+      <div class="example-box" id="exbox">
+        <span class="tok m" data-k="m">Höchstwahrscheinlich</span>
+        <span class="tok b" data-k="b">sollten Schülerinnen und Schüler das Argumentieren systematisch lernen</span>,
+        denn <span class="tok d" data-k="d">strukturiertes Argumentieren begegnet ihnen in Beruf, Studium und Alltag ständig</span>.
+        <span class="tok s" data-k="s">Fähigkeiten, die im Leben ständig gebraucht werden, gehören in die Schule</span> —
+        <span class="tok st" data-k="st">schließlich ist eine demokratische Gesellschaft auf mündige, reflektierte Bürger angewiesen</span>.
+        Das gilt freilich nur, <span class="tok a" data-k="a">es sei denn, der Lehrplan lässt dafür schlicht keinen Raum</span>.
+      </div>
+      <div class="hint">Tipp zum Erkennen: Frage dich „<strong>Was wird behauptet?</strong>“ (Behauptung), „<strong>Womit wird es begründet?</strong>“ (Daten) und „<strong>Welche allgemeine Regel verbindet beides?</strong>“ (Schlussregel).</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2 · REPRODUKTION ============ -->
+<section id="reproduktion">
+  <div class="wrap">
+    <span class="section-tag">2 · Reproduktion — Elemente identifizieren</span>
+    <p class="lead" style="font-size:1rem;color:var(--muted)">Ordne in jedem Argument den Textteilen das passende Toulmin-Element zu. Übung macht den Meister — darum kommen die gleichen Bausteine mehrfach vor. Klicke auf <strong>Prüfen</strong>, um dein Ergebnis zu kontrollieren.</p>
+    <div id="repro-tasks"><!-- per JS gefüllt --></div>
+  </div>
+</section>
+
+<!-- ============ 3 · PRODUKTION ============ -->
+<section id="produktion">
+  <div class="wrap">
+    <span class="section-tag">3 · Produktion — eigene Argumente entwickeln</span>
+    <p class="lead" style="font-size:1rem;color:var(--muted)">Jetzt drehst du den Spieß um: Statt Elemente zu erkennen, baust du sie selbst. Schreibe deine Lösung in die Felder und vergleiche sie anschließend mit dem Lösungsvorschlag.</p>
+
+    <!-- P1 -->
+    <div class="card task">
+      <div class="task-head"><span class="task-num">1</span><h2 style="margin:0">Ein Argument vervollständigen</h2><span class="level">Einstieg</span></div>
+      <p>Gegeben ist nur die <span class="tok b">Behauptung</span>. Ergänze einen passenden Grund (Daten) und eine Schlussregel.</p>
+      <div class="example-box" style="font-size:1.05rem;line-height:1.6">Behauptung: <strong>„Unsere Schule sollte mehr Trinkwasserspender aufstellen.“</strong></div>
+      <div class="field-label"><span class="dot" style="background:var(--c-daten)"></span>Daten (Grund)</div>
+      <textarea placeholder="Womit lässt sich die Behauptung begründen?"></textarea>
+      <div class="field-label"><span class="dot" style="background:var(--c-schlussregel)"></span>Schlussregel</div>
+      <textarea placeholder="Welche allgemeine Regel verbindet den Grund mit der Behauptung?"></textarea>
+      <div class="btnrow"><button class="act ghost" onclick="toggleSol(this)">Lösungsvorschlag anzeigen</button></div>
+      <div class="solution">
+        <h4>Lösungsvorschlag</h4>
+        <p><span class="tok d">Daten:</span> „An heißen Tagen sind die wenigen vorhandenen Spender oft leer, und viele Schüler trinken zu wenig.“</p>
+        <p><span class="tok s">Schlussregel:</span> „Wenn ausreichendes Trinken die Konzentration und Gesundheit fördert, sollte die Schule den Zugang zu Wasser sicherstellen.“</p>
+      </div>
+    </div>
+
+    <!-- P2 -->
+    <div class="card task">
+      <div class="task-head"><span class="task-num">2</span><h2 style="margin:0">Ein vollständiges Argument bauen</h2><span class="level">Aufbau</span></div>
+      <p>Entwickle zu <strong>einer</strong> der folgenden Thesen ein vollständiges Toulmin-Argument mit allen sechs Elementen:</p>
+      <ul style="font-family:system-ui,sans-serif;font-size:.95rem;color:var(--muted)">
+        <li>„Smartphones sollten im Unterricht erlaubt sein.“</li>
+        <li>„Lügen ist nicht immer moralisch falsch.“</li>
+        <li>„Zoos sollten abgeschafft werden.“</li>
+      </ul>
+      <div id="p2fields"></div>
+      <div class="btnrow"><button class="act ghost" onclick="toggleSol(this)">Lösungsvorschläge anzeigen</button></div>
+      <div class="solution">
+        <h4>Lösungsvorschlag A — These „Smartphones sollten im Unterricht erlaubt sein“</h4>
+        <p><span class="tok m">Modaloperator:</span> grundsätzlich · <span class="tok b">Behauptung:</span> Smartphones sollten im Unterricht erlaubt sein.</p>
+        <p><span class="tok d">Daten:</span> Mit dem Smartphone lassen sich Informationen recherchieren, Lern-Apps nutzen und Aufgaben digital bearbeiten.</p>
+        <p><span class="tok s">Schlussregel:</span> Was sinnvolles, selbstständiges Lernen unterstützt, gehört in den Unterricht.</p>
+        <p><span class="tok st">Stützung:</span> Auch der Bildungsauftrag verlangt, dass Schüler den kompetenten Umgang mit digitalen Medien lernen.</p>
+        <p><span class="tok a">Ausnahmebedingung:</span> … es sei denn, das Gerät lenkt vom Unterricht ab oder wird zum Spicken genutzt.</p>
+
+        <h4 style="margin-top:18px">Lösungsvorschlag B — These „Lügen ist nicht immer moralisch falsch“</h4>
+        <p><span class="tok m">Modaloperator:</span> vermutlich · <span class="tok b">Behauptung:</span> Lügen ist nicht immer moralisch falsch.</p>
+        <p><span class="tok d">Daten:</span> Manchmal kann eine Lüge einen unschuldigen Menschen vor schwerem Schaden bewahren.</p>
+        <p><span class="tok s">Schlussregel:</span> Eine Handlung, die größeres Leid verhindert, ist nicht ohne Weiteres verwerflich.</p>
+        <p><span class="tok st">Stützung:</span> Auch in der Ethik (z. B. utilitaristisches Denken) zählt die Frage nach den Folgen einer Handlung.</p>
+        <p><span class="tok a">Ausnahmebedingung:</span> … es sei denn, die Lüge dient nur dem eigenen Vorteil oder richtet selbst großen Schaden an.</p>
+
+        <h4 style="margin-top:18px">Lösungsvorschlag C — These „Zoos sollten abgeschafft werden“</h4>
+        <p><span class="tok m">Modaloperator:</span> wahrscheinlich · <span class="tok b">Behauptung:</span> Zoos sollten abgeschafft werden.</p>
+        <p><span class="tok d">Daten:</span> Viele Tiere leben in Zoos unter beengten Bedingungen, die ihrem natürlichen Verhalten widersprechen.</p>
+        <p><span class="tok s">Schlussregel:</span> Einrichtungen, die fühlenden Lebewesen vermeidbares Leid zufügen, sind nicht zu rechtfertigen.</p>
+        <p><span class="tok st">Stützung:</span> Der Tierschutz ist in Deutschland sogar als Staatsziel im Grundgesetz (Art. 20a) verankert.</p>
+        <p><span class="tok a">Ausnahmebedingung:</span> … es sei denn, ein Zoo dient nachweislich dem Artenschutz und der Auswilderung bedrohter Arten.</p>
+      </div>
+    </div>
+
+    <!-- P3 -->
+    <div class="card task">
+      <div class="task-head"><span class="task-num">3</span><h2 style="margin:0">Übertrag: ein Argument verbessern</h2><span class="level">Transfer</span></div>
+      <p>Das folgende Argument ist <strong>zu absolut</strong> formuliert. Mache es <em>redlicher</em>, indem du einen passenden <span class="tok m">Modaloperator</span> und eine <span class="tok a">Ausnahmebedingung</span> ergänzt. Erkläre anschließend in ein bis zwei Sätzen, warum dein Argument dadurch überzeugender wird.</p>
+      <div class="example-box" style="font-size:1.05rem;line-height:1.6"><strong>„Soziale Medien machen Jugendliche unglücklich. Also müssen sie verboten werden.“</strong></div>
+      <div class="field-label"><span class="dot" style="background:var(--c-modal)"></span>Überarbeitetes Argument mit Modaloperator &amp; Ausnahmebedingung</div>
+      <textarea placeholder="Formuliere das Argument abgeschwächt und mit Ausnahme neu …"></textarea>
+      <div class="field-label"><span class="dot" style="background:var(--accent)"></span>Begründung deiner Überarbeitung</div>
+      <textarea placeholder="Warum ist die neue Fassung überzeugender?"></textarea>
+      <div class="btnrow"><button class="act ghost" onclick="toggleSol(this)">Lösungsvorschlag anzeigen</button></div>
+      <div class="solution">
+        <h4>Lösungsvorschlag</h4>
+        <p><span class="tok b">Überarbeitet:</span> „Intensive Nutzung sozialer Medien kann das Wohlbefinden Jugendlicher <span class="tok m">möglicherweise</span> belasten; ihre Nutzung sollte deshalb stärker begleitet werden — <span class="tok a">es sei denn, sie wird bewusst, zeitlich begrenzt und altersgerecht eingesetzt</span>.“</p>
+        <p><span class="tok s">Warum besser:</span> Der Modaloperator nimmt die Überspitzung zurück, und die Ausnahmebedingung zeigt, dass man Gegenfälle bedacht hat. Das Argument wird dadurch differenzierter und schwerer zu widerlegen.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    Philosophie EF · Lerneinheit „Toulmin-Schema“ · Alle Eingaben bleiben lokal in deinem Browser — es wird nichts gespeichert oder gesendet.<br>
+    Quelle der Fachinhalte: <a href="https://de.wikipedia.org/wiki/Toulmin-Schema" target="_blank" rel="noopener">Wikipedia · Toulmin-Schema</a>
+  </div>
+</footer>
+
+<script>
+/* ---------- Lesefortschritt-Balken ---------- */
+const prog=document.getElementById("progress");
+addEventListener("scroll",()=>{const h=document.documentElement;const p=h.scrollTop/(h.scrollHeight-h.clientHeight);prog.style.width=(p*100)+"%";});
+
+/* ---------- Beispiel hervorheben ---------- */
+const exbox=document.getElementById("exbox");
+document.querySelectorAll("#legend .chip").forEach(chip=>{
+  chip.addEventListener("click",()=>{
+    chip.classList.toggle("on");
+    const anyOff=[...document.querySelectorAll("#legend .chip")].some(c=>!c.classList.contains("on"));
+    exbox.classList.toggle("focus",anyOff);
+    document.querySelectorAll("#exbox .tok").forEach(t=>{
+      const on=document.querySelector('#legend .chip[data-k="'+t.dataset.k+'"]').classList.contains("on");
+      t.classList.toggle("active",on);
+    });
+  });
+});
+
+/* ---------- Lösungs-Toggle ---------- */
+function toggleSol(btn){
+  if(!btn.dataset.label)btn.dataset.label=btn.textContent;
+  const sol=btn.closest(".task").querySelector(".solution");
+  const open=sol.classList.toggle("show");
+  btn.textContent=open?"Lösung ausblenden":btn.dataset.label;
+}
+
+/* ---------- Reproduktions-Aufgaben (Identifizieren) ---------- */
+const LABELS={b:"Behauptung",d:"Daten",s:"Schlussregel",st:"Stützung",m:"Modaloperator",a:"Ausnahmebedingung"};
+
+const TASKS=[
+  { level:"leicht",
+    opts:["b","d","s"],
+    intro:"Ordne den drei Teilen die Grundbausteine zu.",
+    segs:[
+      {t:"Tom schreibt morgen eine wichtige Klausur.",k:"d"},
+      {t:"Wer ausgeschlafen ist, kann sich besser konzentrieren.",k:"s"},
+      {t:"Tom sollte heute Abend früh ins Bett gehen.",k:"b"}
+    ]},
+  { level:"leicht",
+    opts:["b","d","s"],
+    intro:"Auch hier: nur die drei Grundbausteine.",
+    segs:[
+      {t:"Durch diese Lüge würde ein unschuldiger Mensch zu Schaden kommen.",k:"d"},
+      {t:"Lügen ist in dieser Situation moralisch falsch.",k:"b"},
+      {t:"Handlungen, die Unschuldigen schaden, sind moralisch falsch.",k:"s"}
+    ]},
+  { level:"mittel",
+    opts:["b","d","s"],
+    intro:"Achtung — die Reihenfolge ist diesmal durchmischt.",
+    segs:[
+      {t:"Was der psychischen Gesundheit Jugendlicher schadet, sollte reguliert werden.",k:"s"},
+      {t:"Soziale Medien sollten erst ab einem Mindestalter genutzt werden dürfen.",k:"b"},
+      {t:"Studien zeigen, dass intensive Nutzung das Selbstwertgefühl belasten kann.",k:"d"}
+    ]},
+  { level:"mittel",
+    opts:["b","d","s","m","a"],
+    intro:"Jetzt kommen Modaloperator und Ausnahmebedingung hinzu.",
+    segs:[
+      {t:"wahrscheinlich",k:"m"},
+      {t:"In der Innenstadt ist die Luftqualität messbar schlecht.",k:"d"},
+      {t:"Die Stadt sollte autofreie Zonen einrichten.",k:"b"},
+      {t:"Maßnahmen, die die Luft verbessern, sind im öffentlichen Interesse.",k:"s"},
+      {t:"es sei denn, Rettungsdienste würden dadurch unzumutbar eingeschränkt.",k:"a"}
+    ]},
+  { level:"anspruchsvoll",
+    opts:["b","d","s","st","m","a"],
+    intro:"Die Königsaufgabe: alle sechs Elemente.",
+    segs:[
+      {t:"notwendigerweise",k:"m"},
+      {t:"Schülerinnen und Schüler sollten das Argumentieren systematisch lernen.",k:"b"},
+      {t:"Argumentieren begegnet ihnen in Beruf, Studium und Alltag ständig.",k:"d"},
+      {t:"Fähigkeiten, die im Leben ständig gebraucht werden, gehören in die Schule.",k:"s"},
+      {t:"Denn eine demokratische Gesellschaft ist auf mündige, reflektierte Bürger angewiesen.",k:"st"},
+      {t:"es sei denn, der Lehrplan lässt dafür keinen Raum.",k:"a"}
+    ]}
+];
+
+const container=document.getElementById("repro-tasks");
+TASKS.forEach((task,ti)=>{
+  const card=document.createElement("div");
+  card.className="card task";
+  const optsHtml='<option value="">— wählen —</option>'+task.opts.map(k=>'<option value="'+k+'">'+LABELS[k]+'</option>').join("");
+  let rows="";
+  task.segs.forEach((seg,si)=>{
+    rows+='<div class="seg-row" data-answer="'+seg.k+'">'
+      +'<div class="seg-text">„'+seg.t+'“</div>'
+      +'<div class="seg-pick"><select>'+optsHtml+'</select><span class="mark"></span></div>'
+      +'</div>';
+  });
+  card.innerHTML=
+    '<div class="task-head"><span class="task-num">'+(ti+1)+'</span>'
+    +'<h2 style="margin:0">Argument '+(ti+1)+'</h2>'
+    +'<span class="level">'+task.level+'</span></div>'
+    +'<p style="color:var(--muted)">'+task.intro+'</p>'
+    +'<div class="segs">'+rows+'</div>'
+    +'<div class="btnrow">'
+    +'<button class="act" data-check>Prüfen</button>'
+    +'<button class="act ghost" data-show>Lösung zeigen</button>'
+    +'<button class="act ghost" data-reset>Zurücksetzen</button>'
+    +'</div>'
+    +'<div class="feedback"></div>';
+  container.appendChild(card);
+
+  const fb=card.querySelector(".feedback");
+  card.querySelector("[data-check]").addEventListener("click",()=>{
+    let right=0;const rowsEl=card.querySelectorAll(".seg-row");
+    rowsEl.forEach(r=>{
+      const sel=r.querySelector("select");const mark=r.querySelector(".mark");
+      r.classList.remove("correct","incorrect");
+      if(!sel.value){mark.textContent="";return;}
+      if(sel.value===r.dataset.answer){r.classList.add("correct");mark.textContent="✓";right++;}
+      else{r.classList.add("incorrect");mark.textContent="✗";}
+    });
+    const total=rowsEl.length;
+    fb.className="feedback show "+(right===total?"good":"mid");
+    fb.textContent=right===total
+      ?"Perfekt — alle "+total+" Elemente richtig zugeordnet! 🎉"
+      :right+" von "+total+" richtig. Schau dir die rot markierten Zeilen noch einmal an und korrigiere sie.";
+  });
+  card.querySelector("[data-show]").addEventListener("click",()=>{
+    card.querySelectorAll(".seg-row").forEach(r=>{
+      const sel=r.querySelector("select");sel.value=r.dataset.answer;
+      r.classList.remove("incorrect");r.classList.add("correct");
+      r.querySelector(".mark").textContent="✓";
+    });
+    fb.className="feedback show good";fb.textContent="Musterlösung eingeblendet. Vergleiche sie mit deiner Zuordnung.";
+  });
+  card.querySelector("[data-reset]").addEventListener("click",()=>{
+    card.querySelectorAll(".seg-row").forEach(r=>{
+      r.querySelector("select").value="";r.classList.remove("correct","incorrect");
+      r.querySelector(".mark").textContent="";
+    });
+    fb.className="feedback";fb.textContent="";
+  });
+});
+
+/* ---------- Felder für Produktionsaufgabe 2 ---------- */
+const p2=[["m","Modaloperator"],["b","Behauptung"],["d","Daten"],["s","Schlussregel"],["st","Stützung"],["a","Ausnahmebedingung"]];
+const colorVar={b:"--c-behauptung",d:"--c-daten",s:"--c-schlussregel",st:"--c-stuetzung",m:"--c-modal",a:"--c-ausnahme"};
+document.getElementById("p2fields").innerHTML=p2.map(([k,name])=>
+  '<div class="field-label"><span class="dot" style="background:var('+colorVar[k]+')"></span>'+name+'</div>'
+  +'<textarea placeholder="'+name+' …"></textarea>').join("");
+</script>
+<!-- rechtliches --><style>.erik-recht{font:13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;text-align:center;padding:18px 12px 22px;opacity:.75}.erik-recht a{color:inherit}@media print{.erik-recht{display:none}}</style><footer class="erik-recht"><a href="https://erikdahlmann.github.io/impressum.html">Impressum</a> · <a href="https://erikdahlmann.github.io/datenschutz.html">Datenschutz</a></footer><!-- /rechtliches --></body>
+</html>
