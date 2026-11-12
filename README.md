@@ -2,7 +2,7 @@
 
 Aufbau eines Arguments nach Toulmin: Elemente erkennen und eigene Argumente entwickeln.
 
-Live: https://erikdahlmann.github.io/toulmin/
+Live: https://dm-pkg.de/toulmin/
 Auch auf Netlify: https://toulmin.netlify.app/ (online seit 2026-06-27). Erstellt mit Claude Opus 4.8.
 
-Impressum und Datenschutz: https://erikdahlmann.github.io/impressum.html
+Impressum und Datenschutz: https://dm-pkg.de/impressum.html
